@@ -3,7 +3,7 @@
         body {
             background-color: black;
             color: white;
-            font-family: monospace;
+            font-family: 'Lucida Console', 'Courier', monospace;
         }
     </style>
     <body>
@@ -14,9 +14,9 @@
         const HOURS_IN_DAY = 24;
         const MINS_IN_HOUR = 60;
         const MINUTE_SYM = {
-            FULL: '⬛',
-            EMPTY: '⬜',
-            PARTIAL: '.',
+            PAST: '.  ', // '⬛ ',
+            FUTURE: '#  ', // '⬜ ',
+            PRESENT: 'O  ', // '🔲 ',
         };
 
         const zeroPad = (targetNum, digits) =>
@@ -44,12 +44,22 @@
 
         // Display the clock matrix. Hours horizontally, minutes vertically.
         const printClockMatrix = cm => {
-            let clockString = '';
+            let clockString = '    ';
+
+            // Hours labels
+            for (let i = 0; i < HOURS_IN_DAY; ++i) {
+                clockString += zeroPad(i, 2) + ' ';
+            }
+
+            clockString += '\n';
 
             for (let mins = 0; mins < MINS_IN_HOUR; ++mins) {
+                clockString += zeroPad(mins, 2) + '  ';
+
                 for (let hours = 0; hours < HOURS_IN_DAY; ++hours) {
                     clockString += cm[hours][mins];
                 }
+
                 clockString += '\n';
             }
 
@@ -58,38 +68,51 @@
 
         // Generate a clock matrix for the current date
         const generateClockMatrix = date => {
+            const hoursIdx = date.getHours();
+            const minsIdx = date.getMinutes();
+
             // Clock matrix. row:column -> hour:minute
             const clockMatrix = new Array(HOURS_IN_DAY);
-            for (let hours = 0; hours < HOURS_IN_DAY; ++hours) {
-                clockMatrix[hours] = new Array(MINS_IN_HOUR);
-                for (let mins = 0; mins < MINS_IN_HOUR; ++mins) {
-                    clockMatrix[hours][mins] = MINUTE_SYM.EMPTY;
+
+            for (let h = 0; h < HOURS_IN_DAY; ++h) {
+                clockMatrix[h] = new Array(MINS_IN_HOUR);
+
+                for (let m = 0; m < MINS_IN_HOUR; ++m) {
+                    // Past
+                    if (h < hoursIdx || (h === hoursIdx && m < minsIdx)) {
+                        clockMatrix[h][m] = MINUTE_SYM.PAST;
+                    }
+
+                    // Present
+                    else if (h === hoursIdx && m === minsIdx) {
+                        clockMatrix[h][m] = MINUTE_SYM.PRESENT;
+                    }
+
+                    // Future
+                    else if (h > hoursIdx || (h === hoursIdx && m > minsIdx)) {
+                        clockMatrix[h][m] = MINUTE_SYM.FUTURE;
+                    }
                 }
             }
-
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-
-            clockMatrix[hours][minutes] = MINUTE_SYM.FULL;
 
             return clockMatrix;
         };
 
-        const updateClock = () => {
-            const clockMatrix = generateClockMatrix(new Date());
-            document.querySelector('#clock').innerHTML = printClockMatrix(
-                clockMatrix,
-            );
-        };
-
-        updateClock();
-
+        // Update datetime
         setInterval(() => {
             document.querySelector(
                 '#datetime',
             ).innerHTML = getFormattedDateTime();
         }, 100);
 
+        // Update matrix clock
+        const updateClock = () => {
+            const clockMatrix = generateClockMatrix(new Date());
+            document.querySelector('#clock').innerHTML = printClockMatrix(
+                clockMatrix,
+            );
+        };
+        updateClock();
         setInterval(updateClock, 1000 * 60);
     </script>
 </html>

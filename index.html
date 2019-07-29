@@ -1,0 +1,95 @@
+<html>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: monospace;
+        }
+    </style>
+    <body>
+        <pre id="datetime"></pre>
+        <pre id="clock"></pre>
+    </body>
+    <script>
+        const HOURS_IN_DAY = 24;
+        const MINS_IN_HOUR = 60;
+        const MINUTE_SYM = {
+            FULL: '⬛',
+            EMPTY: '⬜',
+            PARTIAL: '.',
+        };
+
+        const zeroPad = (targetNum, digits) =>
+            '0'.repeat(digits - String(targetNum).length) + targetNum;
+
+        const getFormattedDateTime = () => {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = zeroPad(d.getMonth(), 2);
+            const day = zeroPad(d.getDay(), 2);
+            const hour = zeroPad(d.getHours(), 2);
+            const min = zeroPad(d.getMinutes(), 2);
+            const sec = zeroPad(d.getSeconds(), 2);
+            const ms = zeroPad(d.getMilliseconds(), 3);
+            const tzhour = Math.floor(d.getTimezoneOffset() / 60);
+            const tzmin = zeroPad(
+                Math.abs(tzhour * 60 - d.getTimezoneOffset()),
+                2,
+            );
+
+            return `${year}-${month}-${day} ${hour}:${min}:${sec}:${ms} (UTC${
+                tzhour < 0 ? '+' + tzhour : '-' + tzhour
+            }:${tzmin})`;
+        };
+
+        // Display the clock matrix. Hours horizontally, minutes vertically.
+        const printClockMatrix = cm => {
+            let clockString = '';
+
+            for (let mins = 0; mins < MINS_IN_HOUR; ++mins) {
+                for (let hours = 0; hours < HOURS_IN_DAY; ++hours) {
+                    clockString += cm[hours][mins];
+                }
+                clockString += '\n';
+            }
+
+            return clockString;
+        };
+
+        // Generate a clock matrix for the current date
+        const generateClockMatrix = date => {
+            // Clock matrix. row:column -> hour:minute
+            const clockMatrix = new Array(HOURS_IN_DAY);
+            for (let hours = 0; hours < HOURS_IN_DAY; ++hours) {
+                clockMatrix[hours] = new Array(MINS_IN_HOUR);
+                for (let mins = 0; mins < MINS_IN_HOUR; ++mins) {
+                    clockMatrix[hours][mins] = MINUTE_SYM.EMPTY;
+                }
+            }
+
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            clockMatrix[hours][minutes] = MINUTE_SYM.FULL;
+
+            return clockMatrix;
+        };
+
+        const updateClock = () => {
+            const clockMatrix = generateClockMatrix(new Date());
+            document.querySelector('#clock').innerHTML = printClockMatrix(
+                clockMatrix,
+            );
+        };
+
+        updateClock();
+
+        setInterval(() => {
+            document.querySelector(
+                '#datetime',
+            ).innerHTML = getFormattedDateTime();
+        }, 100);
+
+        setInterval(updateClock, 1000 * 60);
+    </script>
+</html>

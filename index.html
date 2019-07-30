@@ -22,8 +22,10 @@
             PRESENT: 'X  ', // '🔲 ',
         };
 
-        // What time to start the clock display (bedtime for me)
-        const START_HOUR = 21;
+        // What time to start the clock display. Can be set with the `sh` query
+        // param. Defaults to 0
+        const startHourQuery = location.search.match(/\?.*(sh)=(\d{1,2})/);
+        const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
 
         // How often to update the display in milliseconds
         const DISPLAY_UPDATE_INTERVAL = 200;
@@ -59,9 +61,10 @@
 
         // Display the clock matrix. Hours horizontally, minutes vertically.
         const printClockMatrix = cm => {
+            // Hour label padding to make room for minute labels
             let clockString = '    ';
 
-            // Hours labels
+            // Hour labels
             for (let i = 0; i < HOURS_IN_DAY; ++i) {
                 const shiftedHours = (i + START_HOUR) % HOURS_IN_DAY;
                 clockString += zeroPad(shiftedHours, 2) + ' ';
@@ -69,9 +72,12 @@
 
             clockString += '\n';
 
+            // Minute rows
             for (let mins = 0; mins < MINS_IN_HOUR; ++mins) {
+                // Minute label
                 clockString += zeroPad(mins, 2) + '  ';
 
+                // Current minute
                 for (let hours = 0; hours < HOURS_IN_DAY; ++hours) {
                     clockString += cm[hours][mins];
                 }

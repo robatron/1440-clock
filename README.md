@@ -5,18 +5,18 @@
 
 ## Motivation
 
-I wanted a simple visualization of the 1,440 precious minutes each of us has in 
-a day. By default, this clock shows you a visual countdown of the minutes you 
+I wanted a simple visualization of the 1,440 precious minutes each of us has in
+a day. By default, this clock shows you a visual countdown of the minutes you
 have remaining before midnight.
 
 ## Usage
 
 https://robatron.github.io/1440-clock/
 
-To change the starting hour, e.g., to your bedtime, you can set it with the `sh`
-query param:
+To change the starting hour or minute, you can set it with the `sh` or `sm`
+query params. For example, here we're setting the starting time to `21:30`:
 
-https://robatron.github.io/1440-clock/?sh=21
+https://robatron.github.io/1440-clock/?sh=21&sm=30
 
 ## Screenshot
 

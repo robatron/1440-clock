@@ -38,9 +38,11 @@
         };
 
         // What time to start the clock display. Can be set with the `sh` query
-        // param. Defaults to 0
-        const startHourQuery = location.search.match(/\?.*(sh)=(\d{1,2})/);
+        // param for starting hour, and `sm` for starting minute. Defaults to 0.
+        const startHourQuery = location.search.match(/\?.*(sh)=(\d+)/);
+        const startMinuteQuery = location.search.match(/\?.*(sm)=(\d+)/);
         const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
+        const START_MINUTE = startMinuteQuery ? parseInt(startMinuteQuery[2]) : 0;
 
         // How often to update the display in milliseconds
         const DISPLAY_UPDATE_INTERVAL = 50;
@@ -90,7 +92,8 @@
             // Minute rows
             for (let mins = 0; mins < MINS_IN_HOUR; ++mins) {
                 // Minute label
-                clockString += zeroPad(mins, 2) + '  ';
+                const shiftedMinutes = (mins + START_MINUTE) % MINS_IN_HOUR;
+                clockString += zeroPad(shiftedMinutes, 2) + '  ';
 
                 // Current minute
                 for (let hours = 0; hours < HOURS_IN_DAY; ++hours) {
@@ -107,7 +110,8 @@
         const generateClockMatrix = date => {
             const hours =
                 (date.getHours() + HOURS_IN_DAY - START_HOUR) % HOURS_IN_DAY;
-            const mins = date.getMinutes();
+            const mins =
+                (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) % MINS_IN_HOUR;
             const secs = date.getSeconds();
             const ms = date.getMilliseconds();
 

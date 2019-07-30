@@ -15,18 +15,28 @@
         <pre id="clock"></pre>
     </body>
     <script>
-        const HOURS_IN_DAY = 24;
-        const MINS_IN_HOUR = 60;
+        // Symbols to represent a minute, past, present, and future
         const MINUTE_SYM = {
             PAST: '.  ', // '⬛ ',
             FUTURE: '#  ', // '⬜ ',
             PRESENT: 'X  ', // '🔲 ',
         };
+
+        // What time to start the clock display (bedtime for me)
+        const START_HOUR = 21;
+
+        // How often to update the display in milliseconds
         const DISPLAY_UPDATE_INTERVAL = 200;
 
+        // Just in case we ever switch to metric time ;-)
+        const HOURS_IN_DAY = 24;
+        const MINS_IN_HOUR = 60;
+
+        // Prefix targetNum with zeros up to the specified digits
         const zeroPad = (targetNum, digits) =>
             '0'.repeat(digits - String(targetNum).length) + targetNum;
 
+        // Return a formatted date-time string for display
         const getFormattedDateTime = () => {
             const d = new Date();
             const year = d.getFullYear();
@@ -53,7 +63,8 @@
 
             // Hours labels
             for (let i = 0; i < HOURS_IN_DAY; ++i) {
-                clockString += zeroPad(i, 2) + ' ';
+                const shiftedHours = (i + START_HOUR) % HOURS_IN_DAY;
+                clockString += zeroPad(shiftedHours, 2) + ' ';
             }
 
             clockString += '\n';
@@ -73,8 +84,9 @@
 
         // Generate a clock matrix for the current date
         const generateClockMatrix = date => {
-            const hoursIdx = date.getHours();
-            const minsIdx = date.getMinutes();
+            const hours =
+                (date.getHours() + HOURS_IN_DAY - START_HOUR) % HOURS_IN_DAY;
+            const mins = date.getMinutes();
 
             // Clock matrix. row:column -> hour:minute
             const clockMatrix = new Array(HOURS_IN_DAY);
@@ -84,17 +96,17 @@
 
                 for (let m = 0; m < MINS_IN_HOUR; ++m) {
                     // Past
-                    if (h < hoursIdx || (h === hoursIdx && m < minsIdx)) {
+                    if (h < hours || (h === hours && m < mins)) {
                         clockMatrix[h][m] = MINUTE_SYM.PAST;
                     }
 
                     // Present
-                    else if (h === hoursIdx && m === minsIdx) {
+                    else if (h === hours && m === mins) {
                         clockMatrix[h][m] = MINUTE_SYM.PRESENT;
                     }
 
                     // Future
-                    else if (h > hoursIdx || (h === hoursIdx && m > minsIdx)) {
+                    else if (h > hours || (h === hours && m > mins)) {
                         clockMatrix[h][m] = MINUTE_SYM.FUTURE;
                     }
                 }
@@ -121,9 +133,9 @@
         updateClock();
 
         // Update display at a regular interval
-        setInterval(
-            () => updateDatetime() && updateClock(),
-            DISPLAY_UPDATE_INTERVAL,
-        );
+        setInterval(() => {
+            updateDatetime();
+            updateClock();
+        }, DISPLAY_UPDATE_INTERVAL);
     </script>
 </html>

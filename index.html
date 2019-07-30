@@ -20,6 +20,7 @@
             PAST: '.  ', // '⬛ ',
             FUTURE: '#  ', // '⬜ ',
             PRESENT: 'X  ', // '🔲 ',
+            PRESENT_PROGRESS: ['∙', '∶', '∴', '∷'].map(c => c + '  '),
         };
 
         // What time to start the clock display. Can be set with the `sh` query
@@ -93,6 +94,7 @@
             const hours =
                 (date.getHours() + HOURS_IN_DAY - START_HOUR) % HOURS_IN_DAY;
             const mins = date.getMinutes();
+            const secs = date.getSeconds();
 
             // Clock matrix. row:column -> hour:minute
             const clockMatrix = new Array(HOURS_IN_DAY);
@@ -108,7 +110,8 @@
 
                     // Present
                     else if (h === hours && m === mins) {
-                        clockMatrix[h][m] = MINUTE_SYM.PRESENT;
+                        clockMatrix[h][m] =
+                            MINUTE_SYM.PRESENT_PROGRESS[Math.floor(secs / 15)];
                     }
 
                     // Future

@@ -20,8 +20,9 @@
         const MINUTE_SYM = {
             PAST: '.  ', // '⬛ ',
             FUTURE: '#  ', // '⬜ ',
-            PRESENT: 'O  ', // '🔲 ',
+            PRESENT: 'X  ', // '🔲 ',
         };
+        const DISPLAY_UPDATE_INTERVAL = 200;
 
         const zeroPad = (targetNum, digits) =>
             '0'.repeat(digits - String(targetNum).length) + targetNum;
@@ -103,11 +104,12 @@
         };
 
         // Update datetime
-        setInterval(() => {
+        const updateDatetime = () => {
             document.querySelector(
                 '#datetime',
             ).innerHTML = getFormattedDateTime();
-        }, 100);
+        };
+        updateDatetime();
 
         // Update matrix clock
         const updateClock = () => {
@@ -117,6 +119,11 @@
             );
         };
         updateClock();
-        setInterval(updateClock, 1000);
+
+        // Update display at a regular interval
+        setInterval(
+            () => updateDatetime() && updateClock(),
+            DISPLAY_UPDATE_INTERVAL,
+        );
     </script>
 </html>

@@ -57,8 +57,8 @@
         const getFormattedDateTime = () => {
             const d = new Date();
             const year = d.getFullYear();
-            const month = zeroPad(d.getMonth(), 2);
-            const day = zeroPad(d.getDay(), 2);
+            const month = zeroPad(d.getMonth() + 1, 2);
+            const day = zeroPad(d.getDate(), 2);
             const hour = zeroPad(d.getHours(), 2);
             const min = zeroPad(d.getMinutes(), 2);
             const sec = zeroPad(d.getSeconds(), 2);

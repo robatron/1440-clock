@@ -1,13 +1,13 @@
 # 1440-clock
 
-> A simple clock that visualizes the 1,440 precious minutes we have every day
+> A simple clock that visualizes the 1,440 precious minutes each of us has in a
 > day https://robatron.github.io/1440-clock/
 
 ## Motivation
 
-I wanted a simple visualization of my 1,440 minutes I have in a day. By default,
-this clock shows me a visual countdown of the minutes I have remaining before
-midnight.
+I wanted a simple visualization of the 1,440 precious minutes each of us has in 
+a day. By default, this clock shows you a visual countdown of the minutes you 
+have remaining before midnight.
 
 ## Usage
 

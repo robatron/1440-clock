@@ -44,6 +44,9 @@
         const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
         const START_MINUTE = startMinuteQuery ? parseInt(startMinuteQuery[2]) : 0;
 
+        // How many columns will be shown. Can be used to show partial days (working hours, for example)
+        const HOURS_TO_DISPLAY = 24;
+
         // How often to update the display in milliseconds
         const DISPLAY_UPDATE_INTERVAL = 50;
 
@@ -82,7 +85,7 @@
             let clockString = '    ';
 
             // Hour labels
-            for (let i = 0; i < HOURS_IN_DAY; ++i) {
+            for (let i = 0; i < HOURS_TO_DISPLAY; ++i) {
                 const shiftedHours = (i + START_HOUR) % HOURS_IN_DAY;
                 clockString += zeroPad(shiftedHours, 2) + ' ';
             }
@@ -96,7 +99,7 @@
                 clockString += zeroPad(shiftedMinutes, 2) + '  ';
 
                 // Current minute
-                for (let hours = 0; hours < HOURS_IN_DAY; ++hours) {
+                for (let hours = 0; hours < HOURS_TO_DISPLAY; ++hours) {
                     clockString += cm[hours][mins];
                 }
 

@@ -113,7 +113,7 @@
             const mins =
                 (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) % MINS_IN_HOUR;
             const secs = date.getSeconds();
-            const ms = date.getMilliseconds();
+            const ms = date.getTime();
 
             // Clock matrix. row:column -> hour:minute
             const clockMatrix = new Array(HOURS_IN_DAY);

@@ -72,7 +72,7 @@
             );
 
             return `${year}-${month}-${day} ${hour}:${min}:${sec}:${ms} (UTC${
-                tzhour < 0 ? '+' + tzhour : '-' + tzhour
+                tzhour < 0 ? '+' + (-tzhour) : '-' + tzhour
             }:${tzmin})`;
         };
 

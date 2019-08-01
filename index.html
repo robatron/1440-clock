@@ -7,29 +7,72 @@
                 background-color: black;
                 color: lightgray;
                 font-family: 'Lucida Console', 'Courier', monospace;
+                margin: auto;
+                max-width: 600px;
             }
 
             a {
-                color: navy;
+                color: blue;
                 text-decoration: none;
             }
 
             a:visited {
-                color: navy;
+                color: blue;
             }
 
             a:hover {
                 color: blue;
+                text-decoration: underline;
             }
         </style>
     </head>
 
     <body>
-        <pre id="datetime"></pre>
+        <h1>1,440 Minute Clock</h1>
+        <p id="datetime"></p>
         <pre id="clock"></pre>
-        <a href="https://github.com/robatron/1440-clock"
-            >Source code on GitHub</a
-        >
+        <h2>About</h2>
+        <p>
+            This is a minimal clock that (by default) visualizes each of the
+            precious 1,440 minutes each of us has in a day.
+        </p>
+        <p>
+            This clock can be configured with query parameters. Here are a few
+            examples. Bookmark your own configuration!
+        </p>
+        <ul>
+            <a href="?">
+                Default
+            </a>
+        </ul>
+        <ul>
+            <a href="?sh=6">
+                Starting time at 6:00
+            </a>
+        </ul>
+        <ul>
+            <a href="?sh=6&sm=30">
+                Starting time at 6:30
+            </a>
+        </ul>
+        <ul>
+            <a href="?sh=7&dh=8">
+                An 8-hour workday starting at 7:00
+            </a>
+        </ul>
+
+        <ul>
+            <a href="?sh=6&dh=15">
+                The author's waking hours
+            </a>
+        </ul>
+        <p>
+            See the
+            <a href="https://github.com/robatron/1440-clock">
+                source code
+            </a>
+            for more details.
+        </p>
     </body>
     <script>
         // Symbols to represent a minute, past, present, and future

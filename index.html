@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta charset="UTF-8">
+        <meta charset="UTF-8" />
         <style>
             body {
                 background-color: black;
@@ -25,9 +25,11 @@
     </head>
 
     <body>
-        <p><pre id="datetime"></pre></p>
-        <p><pre id="clock"></pre></p>
-        <p><a href="https://github.com/robatron/1440-clock">Source code on GitHub</a></p>
+        <pre id="datetime"></pre>
+        <pre id="clock"></pre>
+        <a href="https://github.com/robatron/1440-clock"
+            >Source code on GitHub</a
+        >
     </body>
     <script>
         // Symbols to represent a minute, past, present, and future
@@ -38,15 +40,28 @@
             PRESENT_PROGRESS: ['˺', '˼', '˻', '˹'].map(c => c + '  '),
         };
 
-        // What time to start the clock display. Can be set with the `sh` query
-        // param for starting hour, and `sm` for starting minute. Defaults to 0.
-        const startHourQuery = location.search.match(/\?.*(sh)=(\d+)/);
-        const startMinuteQuery = location.search.match(/\?.*(sm)=(\d+)/);
-        const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
-        const START_MINUTE = startMinuteQuery ? parseInt(startMinuteQuery[2]) : 0;
+        // Gather user settings from the query string.
+        //  - `sh`: Starting hour
+        //  - `sm`: Starting minute
+        //  - `dh`: How many hours to display
+        const getQuerySetting = key =>
+            location.search.match(new RegExp(`\\b(${key})=(\\d+)\\b`), 'i');
 
-        // How many columns will be shown. Can be used to show partial days (working hours, for example)
-        const HOURS_TO_DISPLAY = 24;
+        const startHourQuery = getQuerySetting('sh');
+        const startMinuteQuery = getQuerySetting('sm');
+        const displayHoursQuery = getQuerySetting('dh');
+
+        // What time to start the clock display. Defaults to 0
+        const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
+        const START_MINUTE = startMinuteQuery
+            ? parseInt(startMinuteQuery[2])
+            : 0;
+
+        // How many columns will be shown. Can be used to show partial days
+        // (working hours, for example). Defaults to 24.
+        const HOURS_TO_DISPLAY = displayHoursQuery
+            ? parseInt(displayHoursQuery[2])
+            : 24;
 
         // How often to update the display in milliseconds
         const DISPLAY_UPDATE_INTERVAL = 50;
@@ -76,7 +91,7 @@
             );
 
             return `${year}-${month}-${day} ${hour}:${min}:${sec}:${ms} (UTC${
-                tzhour < 0 ? '+' + (-tzhour) : '-' + tzhour
+                tzhour < 0 ? '+' + -tzhour : '-' + tzhour
             }:${tzmin})`;
         };
 
@@ -115,7 +130,8 @@
             const hours =
                 (date.getHours() + HOURS_IN_DAY - START_HOUR) % HOURS_IN_DAY;
             const mins =
-                (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) % MINS_IN_HOUR;
+                (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) %
+                MINS_IN_HOUR;
             const secs = date.getSeconds();
             const ms = date.getTime();
 

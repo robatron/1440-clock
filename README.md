@@ -18,6 +18,7 @@ https://robatron.github.io/1440-clock/
 To configure the clock you can use the following query parameters:
 
 -   `dh` - Number of hours to display
+-   `hw` - Hide words in the UI, display only the clock
 -   `sh` - Starting hour
 -   `sm` - Starting minute
 

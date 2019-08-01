@@ -9,6 +9,7 @@
                 font-family: 'Lucida Console', 'Courier', monospace;
                 margin: auto;
                 max-width: 600px;
+                min-width: 600px;
             }
 
             a {
@@ -28,51 +29,53 @@
     </head>
 
     <body>
-        <h1>1,440 Minute Clock</h1>
+        <h1 class="words">1,440 Minute Clock</h1>
         <p id="datetime"></p>
         <pre id="clock"></pre>
-        <h2>About</h2>
-        <p>
-            This is a minimal clock that (by default) visualizes each of the
-            precious 1,440 minutes each of us has in a day.
-        </p>
-        <p>
-            This clock can be configured with query parameters. Here are a few
-            examples. Bookmark your own configuration!
-        </p>
-        <ul>
-            <a href="?">
-                Default
-            </a>
-        </ul>
-        <ul>
-            <a href="?sh=6">
-                Starting time at 6:00
-            </a>
-        </ul>
-        <ul>
-            <a href="?sh=6&sm=30">
-                Starting time at 6:30
-            </a>
-        </ul>
-        <ul>
-            <a href="?sh=7&dh=8">
-                An 8-hour workday starting at 7:00
-            </a>
-        </ul>
+        <div class="words">
+            <h2>About</h2>
+            <p>
+                This is a minimal clock that (by default) visualizes each of the
+                precious 1,440 minutes each of us has in a day.
+            </p>
+            <p>
+                This clock can be configured with query parameters. Here are a
+                few examples. Bookmark your own configuration!
+            </p>
+            <ul>
+                <a href="?">
+                    Default
+                </a>
+            </ul>
+            <ul>
+                <a href="?sh=6">
+                    Starting time at 6:00
+                </a>
+            </ul>
+            <ul>
+                <a href="?sh=6&sm=30">
+                    Starting time at 6:30
+                </a>
+            </ul>
+            <ul>
+                <a href="?sh=7&dh=8">
+                    An 8-hour workday starting at 7:00
+                </a>
+            </ul>
 
-        <ul>
-            <a href="?sh=6&dh=15">
-                The author's waking hours
-            </a>
-        </ul>
-        <p>
-            See the
-            <a href="https://github.com/robatron/1440-clock">
-                source code
-            </a>
-            for more details.
-        </p>
+            <ul>
+                <a href="?sh=6&dh=15">
+                    The author's waking hours
+                </a>
+            </ul>
+            <p>
+                See the
+                <a href="https://github.com/robatron/1440-clock">
+                    source code
+                </a>
+                for more details.
+            </p>
+        </div>
     </body>
     <script>
         // Symbols to represent a minute, past, present, and future
@@ -93,6 +96,7 @@
         const startHourQuery = getQuerySetting('sh');
         const startMinuteQuery = getQuerySetting('sm');
         const displayHoursQuery = getQuerySetting('dh');
+        const hideWordsQuery = getQuerySetting('hw');
 
         // What time to start the clock display. Defaults to 0
         const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
@@ -112,6 +116,13 @@
         // Just in case we ever switch to metric time ;-)
         const HOURS_IN_DAY = 24;
         const MINS_IN_HOUR = 60;
+
+        // Hide words immediately if necessary
+        const HIDE_WORDS = hideWordsQuery ? parseInt(hideWordsQuery[2]) : 0;
+        HIDE_WORDS &&
+            document.querySelectorAll('.words').forEach(n => {
+                n.style.display = 'none';
+            });
 
         // Prefix targetNum with zeros up to the specified digits
         const zeroPad = (targetNum, digits) =>

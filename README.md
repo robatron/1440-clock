@@ -1,9 +1,9 @@
 # 1440-clock
 
-> A simple clock that visualizes the 1,440 precious minutes each of us has in a
-> day https://robatron.github.io/1440-clock/
+> A minimalist clock that visualizes the 1,440 precious minutes each of us has
+> in a day https://robatron.github.io/1440-clock/
 
-## Motivation
+## About
 
 I wanted a simple visualization of the 1,440 precious minutes each of us has in
 a day. By default, this clock shows you a visual countdown of the minutes you
@@ -11,16 +11,29 @@ have remaining before midnight.
 
 ## Usage
 
+To use the clock, go here:
+
 https://robatron.github.io/1440-clock/
 
-To change the starting hour or minute, you can set it with the `sh` or `sm`
-query params. For example, here we're setting the starting time to `21:30`:
+To configure the clock you can use the following query parameters:
 
-https://robatron.github.io/1440-clock/?sh=21&sm=30
+-   `dh` - Number of hours to display
+-   `sh` - Starting hour
+-   `sm` - Starting minute
 
-## Screenshot
+For example, this configuration shows an 8-hour workday, from 07:15 to 15:15:
 
-![alt text](./screenshot.png)
+https://robatron.github.io/1440-clock/?dh=8&sh=7&sm=15
+
+## Screenshots
+
+Default:
+
+![alt text](./ss-default.png)
+
+Customized to show an 8-hour, 9-5 workday:
+
+![customized](./ss-custom.png)
 
 # License
 

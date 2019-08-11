@@ -1,246 +1,222 @@
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta charset="UTF-8" />
+
+        <link
+            href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap"
+            rel="stylesheet"
+        />
+
         <style>
-            body {
-                background-color: black;
-                color: lightgray;
-                font-family: 'Lucida Console', 'Courier', monospace;
-                margin: auto;
-                max-width: 600px;
-                min-width: 600px;
+            body * {
+                font-family: 'Roboto Mono', monospace;
+                font-size: small;
+                font-weight: normal;
             }
 
-            a {
-                color: blue;
-                text-decoration: none;
+            #datetime {
+                font-weight: bold;
             }
 
-            a:visited {
-                color: blue;
+            #clock-table {
+                width: min-content;
             }
-
-            a:hover {
-                color: blue;
-                text-decoration: underline;
+            #clock-table thead th {
+                transform: rotate(-45deg);
+                width: 100%;
+            }
+            #clock-table .hour-label {
+                text-align: right;
+            }
+            #clock-table .minute-cell {
+                text-align: center;
+            }
+            #clock-table .minute-cell.minute-past {
+                background-color: lightgray;
+            }
+            #clock-table .minute-cell.minute-present {
+                background-color: red;
+            }
+            #clock-table .minute-cell.minute-future {
+                background-color: grey;
             }
         </style>
     </head>
-
     <body>
-        <h1 class="words">1,440 Minute Clock</h1>
-        <p id="datetime"></p>
-        <pre id="clock"></pre>
-        <div class="words">
-            <h2>About</h2>
-            <p>
-                This is a minimal clock that (by default) visualizes each of the
-                precious 1,440 minutes each of us has in a day.
-            </p>
-            <p>
-                This clock can be configured with query parameters. Here are a
-                few examples. Bookmark your own configuration!
-            </p>
-            <ul>
-                <a href="?">
-                    Default
-                </a>
-            </ul>
-            <ul>
-                <a href="?sh=6">
-                    Starting time at 6:00
-                </a>
-            </ul>
-            <ul>
-                <a href="?sh=6&sm=30">
-                    Starting time at 6:30
-                </a>
-            </ul>
-            <ul>
-                <a href="?sh=7&dh=8">
-                    An 8-hour workday starting at 7:00
-                </a>
-            </ul>
-
-            <ul>
-                <a href="?sh=6&dh=15">
-                    The author's waking hours
-                </a>
-            </ul>
-            <p>
-                See the
-                <a href="https://github.com/robatron/1440-clock">
-                    source code
-                </a>
-                for more details.
-            </p>
+        <div id="datetime"></div>
+        <div>
+            <table id="clock-table">
+                <thead>
+                    <tr>
+                        <!-- Minute label header for columns -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Hour rows-->
+                </tbody>
+            </table>
         </div>
-    </body>
-    <script>
-        // Symbols to represent a minute, past, present, and future
-        const MINUTE_SYM = {
-            PAST: '.  ', // '⬛ ',
-            FUTURE: '#  ', // '⬜ ',
-            PRESENT: 'X  ', // '🔲 ',
-            PRESENT_PROGRESS: ['˺', '˼', '˻', '˹'].map(c => c + '  '),
-        };
+        <script>
+            // Config ----------------------------------------------------------
+            const doc = document;
 
-        // Gather user settings from the query string.
-        //  - `sh`: Starting hour
-        //  - `sm`: Starting minute
-        //  - `dh`: How many hours to display
-        const getQuerySetting = key =>
-            location.search.match(new RegExp(`\\b(${key})=(\\d+)\\b`), 'i');
+            const HOURS_IN_DAY = 24;
+            const MINS_IN_HOUR = 60;
+            const DISPLAY_UPDATE_INTERVAL = 500;
 
-        const startHourQuery = getQuerySetting('sh');
-        const startMinuteQuery = getQuerySetting('sm');
-        const displayHoursQuery = getQuerySetting('dh');
-        const hideWordsQuery = getQuerySetting('hw');
+            // User settings ---------------------------------------------------
 
-        // What time to start the clock display. Defaults to 0
-        const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
-        const START_MINUTE = startMinuteQuery
-            ? parseInt(startMinuteQuery[2])
-            : 0;
+            // Gather user settings from the query string.
+            //  - `sh`: Starting hour
+            //  - `sm`: Starting minute
+            //  - `dh`: How many hours to display
+            const getQuerySetting = key =>
+                location.search.match(new RegExp(`\\b(${key})=(\\d+)\\b`), 'i');
 
-        // How many columns will be shown. Can be used to show partial days
-        // (working hours, for example). Defaults to 24.
-        const HOURS_TO_DISPLAY = displayHoursQuery
-            ? parseInt(displayHoursQuery[2])
-            : 24;
+            const startHourQuery = getQuerySetting('sh');
+            const startMinuteQuery = getQuerySetting('sm');
+            const displayHoursQuery = getQuerySetting('dh');
+            const hideWordsQuery = getQuerySetting('hw');
 
-        // How often to update the display in milliseconds
-        const DISPLAY_UPDATE_INTERVAL = 125;
+            // What time to start the clock display. Defaults to 0
+            const START_HOUR = startHourQuery ? parseInt(startHourQuery[2]) : 0;
+            const START_MINUTE = startMinuteQuery
+                ? parseInt(startMinuteQuery[2])
+                : 0;
 
-        // Just in case we ever switch to metric time ;-)
-        const HOURS_IN_DAY = 24;
-        const MINS_IN_HOUR = 60;
+            // How many columns will be shown. Can be used to show partial days
+            // (working hours, for example). Defaults to 24.
+            const HOURS_TO_DISPLAY = displayHoursQuery
+                ? parseInt(displayHoursQuery[2])
+                : 24;
 
-        // Hide words immediately if necessary
-        const HIDE_WORDS = hideWordsQuery ? parseInt(hideWordsQuery[2]) : 0;
-        HIDE_WORDS &&
-            document.querySelectorAll('.words').forEach(n => {
-                n.style.display = 'none';
-            });
+            // Helper functions ------------------------------------------------
 
-        // Prefix targetNum with zeros up to the specified digits
-        const zeroPad = (targetNum, digits) =>
-            '0'.repeat(digits - String(targetNum).length) + targetNum;
+            // Prefix targetNum with zeros up to the specified digits
+            const zeroPad = (targetNum, digits = 2) =>
+                '0'.repeat(digits - String(targetNum).length) + targetNum;
 
-        // Return a formatted date-time string for display
-        const getFormattedDateTime = () => {
-            const d = new Date();
-            const year = d.getFullYear();
-            const month = zeroPad(d.getMonth() + 1, 2);
-            const day = zeroPad(d.getDate(), 2);
-            const hour = zeroPad(d.getHours(), 2);
-            const min = zeroPad(d.getMinutes(), 2);
-            const sec = zeroPad(d.getSeconds(), 2);
-            const ms = zeroPad(d.getMilliseconds(), 3);
-            const tzhour = Math.floor(d.getTimezoneOffset() / 60);
-            const tzmin = zeroPad(
-                Math.abs(tzhour * 60 - d.getTimezoneOffset()),
-                2,
-            );
+            const setMinuteCellClass = (minuteCell, newClassName = '') => {
+                minuteCell.className = `minute-cell ${newClassName}`;
+            };
 
-            return `${year}-${month}-${day} ${hour}:${min}:${sec}:${ms} (UTC${
-                tzhour < 0 ? '+' + -tzhour : '-' + tzhour
-            }:${tzmin})`;
-        };
+            const getMinuteCellId = (h, m) => `T${zeroPad(h)}-${zeroPad(m)}`;
 
-        // Display the clock matrix. Hours horizontally, minutes vertically.
-        const printClockMatrix = cm => {
-            // Hour label padding to make room for minute labels
-            let clockString = '    ';
+            // Datetime --------------------------------------------------------
 
-            // Hour labels
-            for (let i = 0; i < HOURS_TO_DISPLAY; ++i) {
-                const shiftedHours = (i + START_HOUR) % HOURS_IN_DAY;
-                clockString += zeroPad(shiftedHours, 2) + ' ';
-            }
+            // Return a formatted date-time string for display
+            const getFormattedDateTime = d => {
+                const year = d.getFullYear();
+                const month = zeroPad(d.getMonth() + 1, 2);
+                const day = zeroPad(d.getDate(), 2);
+                const hour = zeroPad(d.getHours(), 2);
+                const min = zeroPad(d.getMinutes(), 2);
+                const sec = zeroPad(d.getSeconds(), 2);
+                const ms = zeroPad(d.getMilliseconds(), 3);
+                const tzhour = Math.floor(d.getTimezoneOffset() / 60);
+                const tzmin = zeroPad(
+                    Math.abs(tzhour * 60 - d.getTimezoneOffset()),
+                    2,
+                );
 
-            clockString += '\n';
+                return `${year}-${month}-${day} ${hour}:${min}:${sec}:${ms} (UTC${
+                    tzhour < 0 ? '+' + -tzhour : '-' + tzhour
+                }:${tzmin})`;
+            };
 
-            // Minute rows
-            for (let mins = 0; mins < MINS_IN_HOUR; ++mins) {
-                // Minute label
-                const shiftedMinutes = (mins + START_MINUTE) % MINS_IN_HOUR;
-                clockString += zeroPad(shiftedMinutes, 2) + '  ';
+            const updateDateTime = date => {
+                const dateTimeEl = document.querySelector('#datetime');
+                dateTimeEl.innerText = getFormattedDateTime(date);
+            };
 
-                // Current minute
-                for (let hours = 0; hours < HOURS_TO_DISPLAY; ++hours) {
-                    clockString += cm[hours][mins];
-                }
+            // Clock table -----------------------------------------------------
 
-                clockString += '\n';
-            }
-
-            return clockString;
-        };
-
-        // Generate a clock matrix for the current date
-        const generateClockMatrix = date => {
-            const hours =
-                (date.getHours() + HOURS_IN_DAY - START_HOUR) % HOURS_IN_DAY;
-            const mins =
-                (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) %
-                MINS_IN_HOUR;
-            const secs = date.getSeconds();
-            const ms = date.getTime();
-
-            // Clock matrix. row:column -> hour:minute
-            const clockMatrix = new Array(HOURS_IN_DAY);
-
-            for (let h = 0; h < HOURS_IN_DAY; ++h) {
-                clockMatrix[h] = new Array(MINS_IN_HOUR);
-
+            const generateClockTable = () => {
+                // Generate clock table header
+                const clockTableHeadRow = doc.querySelector(
+                    '#clock-table>thead>tr',
+                );
+                clockTableHeadRow.appendChild(doc.createElement('th'));
                 for (let m = 0; m < MINS_IN_HOUR; ++m) {
-                    // Past
-                    if (h < hours || (h === hours && m < mins)) {
-                        clockMatrix[h][m] = MINUTE_SYM.PAST;
-                    }
+                    const minHeader = doc.createElement('th');
+                    // minHeader.innerText = m % 5 === 0 ? zeroPad(m) : '.';
+                    minHeader.innerText = zeroPad(m);
+                    clockTableHeadRow.appendChild(minHeader);
+                }
 
-                    // Present
-                    else if (h === hours && m === mins) {
-                        clockMatrix[h][m] =
-                            MINUTE_SYM.PRESENT_PROGRESS[
-                                Math.floor(ms / DISPLAY_UPDATE_INTERVAL) %
-                                    MINUTE_SYM.PRESENT_PROGRESS.length
-                            ];
+                // Generate clock table rows
+                const clockTableBody = doc.querySelector('#clock-table>tbody');
+                for (let h = 0; h < HOURS_IN_DAY; ++h) {
+                    const hourRow = doc.createElement('tr');
+                    const hourLabel = doc.createElement('td');
+                    hourLabel.className = 'hour-label';
+                    hourLabel.innerText = zeroPad(h);
+                    hourRow.appendChild(hourLabel);
+                    for (let m = 0; m < MINS_IN_HOUR; ++m) {
+                        const minuteCell = doc.createElement('td');
+                        minuteCell.id = getMinuteCellId(h, m);
+                        setMinuteCellClass(minuteCell);
+                        hourRow.appendChild(minuteCell);
                     }
+                    clockTableBody.appendChild(hourRow);
+                }
+            };
 
-                    // Future
-                    else if (h > hours || (h === hours && m > mins)) {
-                        clockMatrix[h][m] = MINUTE_SYM.FUTURE;
+            const updateClockTable = date => {
+                const hours =
+                    (date.getHours() + HOURS_IN_DAY - START_HOUR) %
+                    HOURS_IN_DAY;
+                const mins =
+                    (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) %
+                    MINS_IN_HOUR;
+
+                for (let h = 0; h < HOURS_IN_DAY; ++h) {
+                    for (let m = 0; m < MINS_IN_HOUR; ++m) {
+                        const currentMinuteCell = document.querySelector(
+                            `#${getMinuteCellId(h, m)}`,
+                        );
+
+                        // Past
+                        if (h < hours || (h === hours && m < mins)) {
+                            setMinuteCellClass(
+                                currentMinuteCell,
+                                'minute-past',
+                            );
+                        }
+
+                        // Present
+                        else if (h === hours && m === mins) {
+                            setMinuteCellClass(
+                                currentMinuteCell,
+                                'minute-present',
+                            );
+                        }
+
+                        // Future
+                        else if (h > hours || (h === hours && m > mins)) {
+                            setMinuteCellClass(
+                                currentMinuteCell,
+                                'minute-future',
+                            );
+                        }
                     }
                 }
-            }
+            };
 
-            return clockMatrix;
-        };
+            // Main ------------------------------------------------------------
 
-        // Update datetime
-        const updateDatetime = () => {
-            document.querySelector(
-                '#datetime',
-            ).innerHTML = getFormattedDateTime();
-        };
-        updateDatetime();
+            // Generate HTML for the clock table
+            generateClockTable();
 
-        // Update matrix clock
-        const updateClock = () => {
-            const clockMatrix = generateClockMatrix(new Date());
-            document.querySelector('#clock').innerHTML = printClockMatrix(
-                clockMatrix,
-            );
-        };
-        updateClock();
-
-        // Update display at a regular interval
-        setInterval(() => {
-            updateDatetime();
-            updateClock();
-        }, DISPLAY_UPDATE_INTERVAL);
-    </script>
+            // Update display immediately, then at a regular interval
+            const updateDisplay = () => {
+                const date = new Date();
+                updateClockTable(date);
+                updateDateTime(date);
+            };
+            updateDisplay();
+            setInterval(updateDisplay, DISPLAY_UPDATE_INTERVAL);
+        </script>
+    </body>
 </html>

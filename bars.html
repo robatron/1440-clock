@@ -3,16 +3,21 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+        <!-- <link
+            href="https://fonts.googleapis.com/css?family=Roboto+Mono:100,400,700&display=swap"
+            rel="stylesheet"
+        /> -->
         <link
-            href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap"
+            href="https://fonts.googleapis.com/css?family=Source+Code+Pro:100,400,700&display=swap"
             rel="stylesheet"
         />
 
         <style>
             body {
                 background-color: black;
-                color: lightgrey;
-                font-family: 'Roboto Mono', monospace;
+                color: white;
+                font-family: 'Source Code Pro', monospace;
+                letter-spacing: 2px;
                 margin: 0px;
             }
             .hour-prog-bar-wrap {
@@ -20,11 +25,10 @@
                 width: 100%;
             }
             .hour-prog-bar-wrap .hour-prog-bar-label {
-                color: white;
                 float: left;
                 font-size: 10pt;
-                margin-left: 5px;
-                margin-top: 2px;
+                margin-left: 10px;
+                margin-top: 5px;
                 text-align: left;
             }
             .hour-prog-bar-wrap .hour-prog-bar {
@@ -32,7 +36,7 @@
                 width: 100%;
             }
             .hour-prog-bar-wrap .hour-prog-bar-fill {
-                background-color: #346388;
+                background-color: black; /* #346388 */
                 height: 30px;
                 width: 100%;
             }
@@ -53,7 +57,7 @@
             // Vertical spacing variables (in px)
             const VIEWPORT_VERTICAL_MARGIN_HEIGHT = 0;
             const HOUR_BAR_VERTICAL_MARGIN_HEIGHT = 0;
-            const MIN_VIEWPORT_HEIGHT_PX = 500;
+            const MIN_VIEWPORT_HEIGHT_PX = 575;
 
             // User settings ---------------------------------------------------
 
@@ -134,21 +138,33 @@
                         `#hour-${zeroPad(h)} .hour-prog-bar-label`,
                     );
 
+                    let percentHourOver;
+
                     // Past - Start by assuming the hour's 100% over
-                    let percentHourOver = 100;
-                    hourProgBarLabel.innerText = zeroPad(h);
+                    if (h < hours) {
+                        hourProgBarFill.style.width = '100%';
+                        hourProgBarFill.style.borderRight = '0';
+
+                        hourProgBarLabel.style.color = 'darkgrey';
+                        hourProgBarLabel.style.fontWeight = '100';
+                        hourProgBarLabel.innerText = zeroPad(h);
+                    }
 
                     // Present - If it's the current hour, calculate the percent
                     // of the hour that's over
-                    if (h === hours) {
+                    else if (h === hours) {
                         const fractionOfSec = ms / MS_IN_SECS;
                         const fractionOfMin =
                             (secs + fractionOfSec) / SECS_IN_MIN;
                         const fractionOfHour =
                             (mins + fractionOfMin) / MINS_IN_HOUR;
-                        percentHourOver = fractionOfHour * 100;
+                        const percentHourOver = fractionOfHour * 100;
+                        hourProgBarFill.style.width = percentHourOver + '%';
+                        hourProgBarFill.style.borderRight = '0';
 
                         // Set the label to the current time
+                        hourProgBarLabel.style.color = 'white';
+                        hourProgBarLabel.style.fontWeight = '700';
                         hourProgBarLabel.innerText = `${zeroPad(h)}:${zeroPad(
                             mins,
                         )}:${zeroPad(secs)}:${zeroPad(ms, 3)}`;
@@ -156,11 +172,15 @@
 
                     // Future - If it's a future hour, it's completely full
                     else if (h > hours) {
-                        percentHourOver = 0;
+                        hourProgBarFill.style.width = '0';
+                        hourProgBarFill.style.borderRight = '0';
+
+                        hourProgBarLabel.style.color = 'lightgrey';
+                        hourProgBarLabel.style.fontWeight = '400';
+                        hourProgBarLabel.innerText = zeroPad(h);
                     }
 
                     // Set the bar fill width
-                    hourProgBarFill.style.width = percentHourOver + '%';
 
                     // Set the bar height such that the clock completely fills
                     // the screen

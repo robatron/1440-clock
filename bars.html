@@ -55,11 +55,6 @@
             const MS_IN_SECS = 1000;
             const DISPLAY_UPDATE_INTERVAL = 100;
 
-            // Vertical spacing variables (in px). See the CSS.
-            const BODY_VERT_MARGIN_HEIGHT = 0;
-            const HOUR_BAR_VERT_MARGIN_HEIGHT = 0;
-            const MIN_VIEWPORT_HEIGHT_PX = 575; // Hand-tuned
-
             // User settings ---------------------------------------------------
 
             // Gather user settings from the query string
@@ -75,7 +70,7 @@
             const START_HOUR = getIntQuerySetting('sh');
 
             // How many hours to show. Can be used to show partial days, e.g.,
-            // working hours. Defaults to 24.
+            // working hours. Default and max value is 24.
             const rawHoursToDisplay = getIntQuerySetting('dh', HOURS_IN_DAY);
             const HOURS_TO_DISPLAY =
                 rawHoursToDisplay <= HOURS_IN_DAY
@@ -90,6 +85,19 @@
 
             // Shift given hour by start hour wrapping if too large
             const shiftHours = h => (h + START_HOUR) % HOURS_IN_DAY;
+
+            // Calculate the vertical margins of an element
+            const getElementVertMarginHeight = el => {
+                var styles = window.getComputedStyle(el);
+                return (
+                    parseFloat(styles['marginTop']) +
+                    parseFloat(styles['marginBottom'])
+                );
+            };
+
+            // Get the total height of an element, including the margins
+            const getElementTotalHeight = el =>
+                Math.ceil(getElementVertMarginHeight(el) + el.offsetHeight);
 
             // Clock -----------------------------------------------------------
 
@@ -191,16 +199,26 @@
                     }
 
                     // Set the bar height such that the clock height completely
-                    // fills the screen respecting minimum height
-                    const viewportHeight =
-                        w.innerHeight > MIN_VIEWPORT_HEIGHT_PX
-                            ? w.innerHeight
-                            : MIN_VIEWPORT_HEIGHT_PX;
-                    hourProgBarFill.style.height =
-                        (viewportHeight -
-                            BODY_VERT_MARGIN_HEIGHT -
-                            HOURS_TO_DISPLAY * HOUR_BAR_VERT_MARGIN_HEIGHT) /
+                    // fills the screen without getting smashed
+                    const bodyVertMargins = getElementVertMarginHeight(
+                        d.querySelector('body'),
+                    );
+                    const hourProgBarFillVertMargins = getElementVertMarginHeight(
+                        hourProgBarFill,
+                    );
+                    const progBarLabelTotalHeight = getElementTotalHeight(
+                        hourProgBarLabel,
+                    );
+                    const newProgBarHeight =
+                        (w.innerHeight -
+                            bodyVertMargins -
+                            HOURS_TO_DISPLAY * hourProgBarFillVertMargins) /
                         HOURS_TO_DISPLAY;
+
+                    hourProgBarFill.style.height =
+                        newProgBarHeight >= progBarLabelTotalHeight
+                            ? newProgBarHeight
+                            : progBarLabelTotalHeight;
                 }
             };
 

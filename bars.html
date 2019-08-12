@@ -34,7 +34,7 @@
                 background-color: #0e3a5c;
                 width: 100%;
             }
-            .hour-prog-bar-wrap .hour-prog-bar-fill {
+            .hour-prog-bar-wrap .hour-prog-bar-fill-complete {
                 background-color: black; /* #346388 */
                 height: 30px;
                 width: 100%;
@@ -45,18 +45,22 @@
         <div id="clock"></div>
         <script>
             // Config ----------------------------------------------------------
-            const doc = document;
+
+            const d = document;
+            const w = window;
 
             const HOURS_IN_DAY = 24;
             const MINS_IN_HOUR = 60;
             const SECS_IN_MIN = 60;
             const MS_IN_SECS = 1000;
-            const DISPLAY_UPDATE_INTERVAL = 64;
 
-            // Vertical spacing variables (in px)
-            const VIEWPORT_VERTICAL_MARGIN_HEIGHT = 0;
-            const HOUR_BAR_VERTICAL_MARGIN_HEIGHT = 0;
-            const MIN_VIEWPORT_HEIGHT_PX = 575;
+            const TARGET_FPS = 60;
+            const DISPLAY_UPDATE_INTERVAL = (TARGET_FPS / MS_IN_SECS) * 10;
+
+            // Vertical spacing variables (in px). See the CSS.
+            const BODY_VERT_MARGIN_HEIGHT = 0;
+            const HOUR_BAR_VERT_MARGIN_HEIGHT = 0;
+            const MIN_VIEWPORT_HEIGHT_PX = 575; // Hand-tuned
 
             // User settings ---------------------------------------------------
 
@@ -87,39 +91,43 @@
 
             // Clock -----------------------------------------------------------
 
-            // Generate the clock HTML structure
+            // Create the HTML for a single hour progress bar
+            const createHourBar = hour => {
+                // Create the progress bar filler
+                const hourProgBarFill = d.createElement('div');
+                hourProgBarFill.className = 'hour-prog-bar-fill-complete';
+
+                // Create the progress bar itself, append the filler
+                const hourProgBar = d.createElement('div');
+                hourProgBar.className = 'hour-prog-bar';
+                hourProgBar.appendChild(hourProgBarFill);
+
+                // Create the label with the hour
+                const hourProgBarLabel = d.createElement('div');
+                hourProgBarLabel.className = 'hour-prog-bar-label';
+                hourProgBarLabel.innerText = zeroPad(hour);
+
+                // Create the hour's wrapper, append the label and prog bar
+                const hourProgBarWrap = d.createElement('div');
+                hourProgBarWrap.id = 'hour-' + zeroPad(hour);
+                hourProgBarWrap.className = 'hour-prog-bar-wrap';
+                hourProgBarWrap.appendChild(hourProgBarLabel);
+                hourProgBarWrap.appendChild(hourProgBar);
+
+                return hourProgBarWrap;
+            };
+
+            // Generate the clock HTML and add it to the DOM
             const generateClock = targetElQuery => {
-                const targetEl = doc.querySelector(targetElQuery);
-
+                const targetEl = d.querySelector(targetElQuery);
                 for (let h = 0; h < HOURS_IN_DAY; ++h) {
-                    // Create the progress bar filler
-                    const hourProgBarFill = doc.createElement('div');
-                    hourProgBarFill.className = 'hour-prog-bar-fill';
-
-                    // Create the progress bar itself, append the filler
-                    const hourProgBar = doc.createElement('div');
-                    hourProgBar.className = 'hour-prog-bar';
-                    hourProgBar.appendChild(hourProgBarFill);
-
-                    // Create the label with the hour
-                    const hourProgBarLabel = doc.createElement('div');
-                    hourProgBarLabel.className = 'hour-prog-bar-label';
-                    hourProgBarLabel.innerText = zeroPad(h);
-
-                    // Create the hour's wrapper, append the label and prog bar
-                    const hourProgBarWrap = doc.createElement('div');
-                    hourProgBarWrap.id = 'hour-' + zeroPad(h);
-                    hourProgBarWrap.className = 'hour-prog-bar-wrap';
-                    hourProgBarWrap.appendChild(hourProgBarLabel);
-                    hourProgBarWrap.appendChild(hourProgBar);
-
-                    // Finally, append the complete progress bar structure
-                    targetEl.appendChild(hourProgBarWrap);
+                    targetEl.appendChild(createHourBar(h));
                 }
             };
 
             // Update the clock
             const updateClock = date => {
+                // Break up the current time
                 const hours =
                     (date.getHours() + HOURS_IN_DAY - START_HOUR) %
                     HOURS_IN_DAY;
@@ -130,69 +138,69 @@
                 const ms = date.getMilliseconds();
 
                 for (let h = 0; h < HOURS_IN_DAY; ++h) {
-                    const hourProgBarFill = doc.querySelector(
-                        `#hour-${zeroPad(h)} .hour-prog-bar-fill`,
+                    const hourProgBarFill = d.querySelector(
+                        `#hour-${zeroPad(h)} .hour-prog-bar-fill-complete`,
                     );
-                    const hourProgBarLabel = doc.querySelector(
+                    const hourProgBarLabel = d.querySelector(
                         `#hour-${zeroPad(h)} .hour-prog-bar-label`,
                     );
-
-                    let percentHourOver;
 
                     // Past - Start by assuming the hour's 100% over
                     if (h < hours) {
                         hourProgBarFill.style.width = '100%';
-                        hourProgBarFill.style.borderRight = '0';
 
+                        hourProgBarLabel.innerText = zeroPad(h);
                         hourProgBarLabel.style.color = 'darkgrey';
                         hourProgBarLabel.style.fontWeight = '100';
-                        hourProgBarLabel.innerText = zeroPad(h);
                     }
 
                     // Present - If it's the current hour, calculate the percent
-                    // of the hour that's over
+                    // of the hour that's complete
                     else if (h === hours) {
                         const fractionOfSec = ms / MS_IN_SECS;
                         const fractionOfMin =
                             (secs + fractionOfSec) / SECS_IN_MIN;
                         const fractionOfHour =
                             (mins + fractionOfMin) / MINS_IN_HOUR;
+                        const tenthOfSec = Math.floor(ms / 100);
                         const percentHourOver = fractionOfHour * 100;
+
                         hourProgBarFill.style.width = percentHourOver + '%';
-                        hourProgBarFill.style.borderRight = '0';
 
                         // Set the label to the current time
-                        hourProgBarLabel.style.color = 'white';
-                        hourProgBarLabel.style.fontWeight = '700';
                         hourProgBarLabel.innerText = `${zeroPad(h)}:${zeroPad(
                             mins,
-                        )}:${zeroPad(secs)}:${zeroPad(ms, 3)}`;
+                        )}:${zeroPad(secs)}.${tenthOfSec}`;
+                        hourProgBarLabel.style.color = 'white';
+
+                        if (tenthOfSec === 0) {
+                            hourProgBarLabel.style.fontWeight = '700';
+                            // hourProgBarLabel.style.textDecoration = 'underline';
+                        } else {
+                            hourProgBarLabel.style.fontWeight = '400';
+                            // hourProgBarLabel.style.textDecoration = 'none';
+                        }
                     }
 
                     // Future - If it's a future hour, it's completely full
                     else if (h > hours) {
                         hourProgBarFill.style.width = '0';
-                        hourProgBarFill.style.borderRight = '0';
 
+                        hourProgBarLabel.innerText = zeroPad(h);
                         hourProgBarLabel.style.color = 'lightgrey';
                         hourProgBarLabel.style.fontWeight = '400';
-                        hourProgBarLabel.innerText = zeroPad(h);
                     }
 
-                    // Set the bar fill width
-
-                    // Set the bar height such that the clock completely fills
-                    // the screen
+                    // Set the bar height such that the clock height completely
+                    // fills the screen respecting minimum height
                     const viewportHeight =
-                        window.innerHeight > MIN_VIEWPORT_HEIGHT_PX
-                            ? window.innerHeight
+                        w.innerHeight > MIN_VIEWPORT_HEIGHT_PX
+                            ? w.innerHeight
                             : MIN_VIEWPORT_HEIGHT_PX;
                     hourProgBarFill.style.height =
-                        // Total height of the clock
                         (viewportHeight -
-                            VIEWPORT_VERTICAL_MARGIN_HEIGHT -
-                            // Margin on each bar
-                            HOURS_IN_DAY * HOUR_BAR_VERTICAL_MARGIN_HEIGHT) /
+                            BODY_VERT_MARGIN_HEIGHT -
+                            HOURS_IN_DAY * HOUR_BAR_VERT_MARGIN_HEIGHT) /
                         HOURS_IN_DAY;
                 }
             };

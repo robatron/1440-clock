@@ -16,14 +16,16 @@
                 margin: 5px;
             }
             .hour-prog-bar-wrap {
-                align-items: center;
-                display: flex;
                 margin-bottom: 1px;
                 width: 100%;
             }
             .hour-prog-bar-wrap .hour-prog-bar-label {
+                color: black;
+                float: left;
                 font-size: 10pt;
+                font-weight: bold;
                 margin-right: 5px;
+                margin-top: 2px;
                 text-align: right;
                 width: 20px;
             }
@@ -49,6 +51,11 @@
             const SECS_IN_MIN = 60;
             const MS_IN_SECS = 1000;
             const DISPLAY_UPDATE_INTERVAL = 250;
+
+            // Vertical spacing variables (in px)
+            const VIEWPORT_VERTICAL_MARGIN_HEIGHT = 10;
+            const HOUR_BAR_VERTICAL_MARGIN_HEIGHT = 1;
+            const MIN_VIEWPORT_HEIGHT_PX = 500;
 
             // User settings ---------------------------------------------------
 
@@ -145,19 +152,22 @@
                         percentHourOver = 0;
                     }
 
+                    // Set the bar fill width
                     currentHourProgBarFill.style.width = percentHourOver + '%';
 
-                    const desiredBarHeight =
+                    // Set the bar height such that the clock completely fills
+                    // the screen
+                    const viewportHeight =
+                        window.innerHeight > MIN_VIEWPORT_HEIGHT_PX
+                            ? window.innerHeight
+                            : MIN_VIEWPORT_HEIGHT_PX;
+                    currentHourProgBarFill.style.height =
                         // Total height of the clock
-                        (window.innerHeight -
-                            // Top and bottom margin of the body
-                            5 -
-                            5 -
+                        (viewportHeight -
+                            VIEWPORT_VERTICAL_MARGIN_HEIGHT -
                             // Margin on each bar
-                            HOURS_IN_DAY * 1) /
+                            HOURS_IN_DAY * HOUR_BAR_VERTICAL_MARGIN_HEIGHT) /
                         HOURS_IN_DAY;
-
-                    currentHourProgBarFill.style.height = desiredBarHeight;
                 }
             };
 

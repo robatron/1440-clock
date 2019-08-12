@@ -68,7 +68,7 @@
                     new RegExp(`\\b(${key})=(\\d+)\\b`),
                     'i',
                 );
-                return val ? parseInt(val)[2] : defaultVal;
+                return val ? parseInt(val[2]) : defaultVal;
             };
 
             // Starting hour, default 0
@@ -118,7 +118,7 @@
             // Generate the clock HTML and add it to the DOM
             const generateClock = targetElQuery => {
                 const targetEl = d.querySelector(targetElQuery);
-                for (let h = 0; h < HOURS_IN_DAY; ++h) {
+                for (let h = 0; h < HOURS_TO_DISPLAY; ++h) {
                     targetEl.appendChild(createHourBar(h));
                 }
             };
@@ -135,7 +135,7 @@
                 const secs = date.getSeconds();
                 const ms = date.getMilliseconds();
 
-                for (let h = 0; h < HOURS_IN_DAY; ++h) {
+                for (let h = 0; h < HOURS_TO_DISPLAY; ++h) {
                     const hourProgBarFill = d.querySelector(
                         `#hour-${zeroPad(h)} .hour-prog-bar-fill-complete`,
                     );
@@ -173,10 +173,8 @@
 
                         if (tenthOfSec === 0) {
                             hourProgBarLabel.style.fontWeight = '700';
-                            // hourProgBarLabel.style.textDecoration = 'underline';
                         } else {
                             hourProgBarLabel.style.fontWeight = '400';
-                            // hourProgBarLabel.style.textDecoration = 'none';
                         }
                     }
 
@@ -198,8 +196,8 @@
                     hourProgBarFill.style.height =
                         (viewportHeight -
                             BODY_VERT_MARGIN_HEIGHT -
-                            HOURS_IN_DAY * HOUR_BAR_VERT_MARGIN_HEIGHT) /
-                        HOURS_IN_DAY;
+                            HOURS_TO_DISPLAY * HOUR_BAR_VERT_MARGIN_HEIGHT) /
+                        HOURS_TO_DISPLAY;
                 }
             };
 

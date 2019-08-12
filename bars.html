@@ -1,0 +1,178 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link
+            href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            body {
+                background-color: black;
+                color: lightgrey;
+                font-family: 'Roboto Mono', monospace;
+                margin: 5px;
+            }
+            .hour-prog-bar-wrap {
+                align-items: center;
+                display: flex;
+                margin-bottom: 1px;
+                width: 100%;
+            }
+            .hour-prog-bar-wrap .hour-prog-bar-label {
+                font-size: 10pt;
+                margin-right: 5px;
+                text-align: right;
+                width: 20px;
+            }
+            .hour-prog-bar-wrap .hour-prog-bar {
+                background-color: blue;
+                width: 100%;
+            }
+            .hour-prog-bar-wrap .hour-prog-bar-fill {
+                background-color: lightgray;
+                height: 30px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="clock"></div>
+        <script>
+            // Config ----------------------------------------------------------
+            const doc = document;
+
+            const HOURS_IN_DAY = 24;
+            const MINS_IN_HOUR = 60;
+            const SECS_IN_MIN = 60;
+            const MS_IN_SECS = 1000;
+            const DISPLAY_UPDATE_INTERVAL = 250;
+
+            // User settings ---------------------------------------------------
+
+            // Gather user settings from the query string
+            const getIntQuerySetting = (key, defaultVal = 0) => {
+                const val = location.search.match(
+                    new RegExp(`\\b(${key})=(\\d+)\\b`),
+                    'i',
+                );
+                return val ? parseInt(val)[2] : defaultVal;
+            };
+
+            // Starting hour, default 0
+            const START_HOUR = getIntQuerySetting('sh');
+
+            // Starting minute, default 0
+            const START_MINUTE = getIntQuerySetting('sm');
+
+            // How many hours to show. Can be used to show partial days, e.g.,
+            // working hours. Defaults to 24.
+            const HOURS_TO_DISPLAY = getIntQuerySetting('dh', HOURS_IN_DAY);
+
+            // Helper functions ------------------------------------------------
+
+            // Prefix targetNum with zeros up to the specified digits
+            const zeroPad = (targetNum, digits = 2) =>
+                '0'.repeat(digits - String(targetNum).length) + targetNum;
+
+            // Clock -----------------------------------------------------------
+
+            // Generate the clock HTML structure
+            const generateClock = targetElQuery => {
+                const targetEl = doc.querySelector(targetElQuery);
+
+                for (let h = 0; h < HOURS_IN_DAY; ++h) {
+                    // Create the progress bar filler
+                    const hourProgBarFill = doc.createElement('div');
+                    hourProgBarFill.className = 'hour-prog-bar-fill';
+
+                    // Create the progress bar itself, append the filler
+                    const hourProgBar = doc.createElement('div');
+                    hourProgBar.className = 'hour-prog-bar';
+                    hourProgBar.appendChild(hourProgBarFill);
+
+                    // Create the label with the hour
+                    const hourProgBarLabel = doc.createElement('div');
+                    hourProgBarLabel.className = 'hour-prog-bar-label';
+                    hourProgBarLabel.innerText = zeroPad(h);
+
+                    // Create the hour's wrapper, append the label and prog bar
+                    const hourProgBarWrap = doc.createElement('div');
+                    hourProgBarWrap.id = 'hour-' + zeroPad(h);
+                    hourProgBarWrap.className = 'hour-prog-bar-wrap';
+                    hourProgBarWrap.appendChild(hourProgBarLabel);
+                    hourProgBarWrap.appendChild(hourProgBar);
+
+                    // Finally, append the complete progress bar structure
+                    targetEl.appendChild(hourProgBarWrap);
+                }
+            };
+
+            // Update the clock
+            const updateClock = date => {
+                const hours =
+                    (date.getHours() + HOURS_IN_DAY - START_HOUR) %
+                    HOURS_IN_DAY;
+                const mins =
+                    (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) %
+                    MINS_IN_HOUR;
+                const secs = date.getSeconds();
+                const ms = date.getMilliseconds();
+
+                for (let h = 0; h < HOURS_IN_DAY; ++h) {
+                    const currentHourProgBarFill = doc.querySelector(
+                        `#hour-${zeroPad(h)} .hour-prog-bar-fill`,
+                    );
+
+                    // Past - Start by assuming the hour's 100% over
+                    let percentHourOver = 100;
+
+                    // Present - If it's the current hour, calculate the percent
+                    // of the hour that's over
+                    if (h === hours) {
+                        const fractionOfSec = ms / MS_IN_SECS;
+                        const fractionOfMin =
+                            (secs + fractionOfSec) / SECS_IN_MIN;
+                        const fractionOfHour =
+                            (mins + fractionOfMin) / MINS_IN_HOUR;
+                        percentHourOver = fractionOfHour * 100;
+                    }
+
+                    // Future - If it's a future hour, it's completely full
+                    else if (h > hours) {
+                        percentHourOver = 0;
+                    }
+
+                    currentHourProgBarFill.style.width = percentHourOver + '%';
+
+                    const desiredBarHeight =
+                        // Total height of the clock
+                        (window.innerHeight -
+                            // Top and bottom margin of the body
+                            5 -
+                            5 -
+                            // Margin on each bar
+                            HOURS_IN_DAY * 1) /
+                        HOURS_IN_DAY;
+
+                    currentHourProgBarFill.style.height = desiredBarHeight;
+                }
+            };
+
+            // Main ------------------------------------------------------------
+
+            // Generate clock HTML
+            generateClock('#clock');
+
+            // Update display immediately, then at a regular interval
+            const updateDisplay = () => {
+                const date = new Date();
+                updateClock(date);
+            };
+            updateDisplay();
+            setInterval(updateDisplay, DISPLAY_UPDATE_INTERVAL);
+        </script>
+    </body>
+</html>

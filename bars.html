@@ -53,9 +53,7 @@
             const MINS_IN_HOUR = 60;
             const SECS_IN_MIN = 60;
             const MS_IN_SECS = 1000;
-
-            const TARGET_FPS = 60;
-            const DISPLAY_UPDATE_INTERVAL = (TARGET_FPS / MS_IN_SECS) * 10;
+            const DISPLAY_UPDATE_INTERVAL = 100;
 
             // Vertical spacing variables (in px). See the CSS.
             const BODY_VERT_MARGIN_HEIGHT = 0;
@@ -216,7 +214,10 @@
                 updateClock(date);
             };
             updateDisplay();
-            setInterval(updateDisplay, DISPLAY_UPDATE_INTERVAL);
+            setInterval(
+                requestAnimationFrame.bind(this, updateDisplay),
+                DISPLAY_UPDATE_INTERVAL,
+            );
         </script>
     </body>
 </html>

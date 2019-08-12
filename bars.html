@@ -45,15 +45,17 @@
         <div id="clock"></div>
         <script>
             // Config ----------------------------------------------------------
-
             const d = document;
             const w = window;
 
+            // Time constants
             const HOURS_IN_DAY = 24;
             const MINS_IN_HOUR = 60;
             const SECS_IN_MIN = 60;
             const MS_IN_SECS = 1000;
-            const DISPLAY_UPDATE_INTERVAL = 100; // Update clock every 10th sec
+
+            // How often to update the clock, in milliseconds
+            const DISPLAY_UPDATE_INTERVAL = 100;
 
             // User settings ---------------------------------------------------
 

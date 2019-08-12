@@ -20,21 +20,19 @@
                 width: 100%;
             }
             .hour-prog-bar-wrap .hour-prog-bar-label {
-                color: black;
+                color: white;
                 float: left;
                 font-size: 10pt;
-                font-weight: bold;
-                margin-right: 5px;
+                margin-left: 5px;
                 margin-top: 2px;
-                text-align: right;
-                width: 20px;
+                text-align: left;
             }
             .hour-prog-bar-wrap .hour-prog-bar {
-                background-color: blue;
+                background-color: #0e3a5c;
                 width: 100%;
             }
             .hour-prog-bar-wrap .hour-prog-bar-fill {
-                background-color: lightgray;
+                background-color: #346388;
                 height: 30px;
                 width: 100%;
             }
@@ -50,7 +48,7 @@
             const MINS_IN_HOUR = 60;
             const SECS_IN_MIN = 60;
             const MS_IN_SECS = 1000;
-            const DISPLAY_UPDATE_INTERVAL = 250;
+            const DISPLAY_UPDATE_INTERVAL = 64;
 
             // Vertical spacing variables (in px)
             const VIEWPORT_VERTICAL_MARGIN_HEIGHT = 10;
@@ -129,12 +127,16 @@
                 const ms = date.getMilliseconds();
 
                 for (let h = 0; h < HOURS_IN_DAY; ++h) {
-                    const currentHourProgBarFill = doc.querySelector(
+                    const hourProgBarFill = doc.querySelector(
                         `#hour-${zeroPad(h)} .hour-prog-bar-fill`,
+                    );
+                    const hourProgBarLabel = doc.querySelector(
+                        `#hour-${zeroPad(h)} .hour-prog-bar-label`,
                     );
 
                     // Past - Start by assuming the hour's 100% over
                     let percentHourOver = 100;
+                    hourProgBarLabel.innerText = zeroPad(h);
 
                     // Present - If it's the current hour, calculate the percent
                     // of the hour that's over
@@ -145,6 +147,11 @@
                         const fractionOfHour =
                             (mins + fractionOfMin) / MINS_IN_HOUR;
                         percentHourOver = fractionOfHour * 100;
+
+                        // Set the label to the current time
+                        hourProgBarLabel.innerText = `${zeroPad(h)}:${zeroPad(
+                            mins,
+                        )}:${zeroPad(secs)}:${zeroPad(ms, 3)}`;
                     }
 
                     // Future - If it's a future hour, it's completely full
@@ -153,7 +160,7 @@
                     }
 
                     // Set the bar fill width
-                    currentHourProgBarFill.style.width = percentHourOver + '%';
+                    hourProgBarFill.style.width = percentHourOver + '%';
 
                     // Set the bar height such that the clock completely fills
                     // the screen
@@ -161,7 +168,7 @@
                         window.innerHeight > MIN_VIEWPORT_HEIGHT_PX
                             ? window.innerHeight
                             : MIN_VIEWPORT_HEIGHT_PX;
-                    currentHourProgBarFill.style.height =
+                    hourProgBarFill.style.height =
                         // Total height of the clock
                         (viewportHeight -
                             VIEWPORT_VERTICAL_MARGIN_HEIGHT -

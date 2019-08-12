@@ -64,28 +64,32 @@
 
             // Gather user settings from the query string
             const getIntQuerySetting = (key, defaultVal = 0) => {
-                const val = location.search.match(
+                const match = location.search.match(
                     new RegExp(`\\b(${key})=(\\d+)\\b`),
                     'i',
                 );
-                return val ? parseInt(val[2]) : defaultVal;
+                return match ? parseInt(match[2]) : defaultVal;
             };
 
             // Starting hour, default 0
             const START_HOUR = getIntQuerySetting('sh');
 
-            // Starting minute, default 0
-            const START_MINUTE = getIntQuerySetting('sm');
-
             // How many hours to show. Can be used to show partial days, e.g.,
             // working hours. Defaults to 24.
-            const HOURS_TO_DISPLAY = getIntQuerySetting('dh', HOURS_IN_DAY);
+            const rawHoursToDisplay = getIntQuerySetting('dh', HOURS_IN_DAY);
+            const HOURS_TO_DISPLAY =
+                rawHoursToDisplay <= HOURS_IN_DAY
+                    ? rawHoursToDisplay
+                    : HOURS_IN_DAY;
 
             // Helper functions ------------------------------------------------
 
             // Prefix targetNum with zeros up to the specified digits
             const zeroPad = (targetNum, digits = 2) =>
                 '0'.repeat(digits - String(targetNum).length) + targetNum;
+
+            // Shift given hour by start hour wrapping if too large
+            const shiftHours = h => (h + START_HOUR) % HOURS_IN_DAY;
 
             // Clock -----------------------------------------------------------
 
@@ -119,42 +123,41 @@
             const generateClock = targetElQuery => {
                 const targetEl = d.querySelector(targetElQuery);
                 for (let h = 0; h < HOURS_TO_DISPLAY; ++h) {
-                    targetEl.appendChild(createHourBar(h));
+                    targetEl.appendChild(createHourBar(shiftHours(h)));
                 }
             };
 
             // Update the clock
             const updateClock = date => {
                 // Break up the current time
-                const hours =
-                    (date.getHours() + HOURS_IN_DAY - START_HOUR) %
-                    HOURS_IN_DAY;
-                const mins =
-                    (date.getMinutes() + MINS_IN_HOUR - START_MINUTE) %
-                    MINS_IN_HOUR;
+                const hours = date.getHours();
+                const mins = date.getMinutes();
                 const secs = date.getSeconds();
                 const ms = date.getMilliseconds();
 
                 for (let h = 0; h < HOURS_TO_DISPLAY; ++h) {
+                    const shiftedHours = shiftHours(h);
                     const hourProgBarFill = d.querySelector(
-                        `#hour-${zeroPad(h)} .hour-prog-bar-fill-complete`,
+                        `#hour-${zeroPad(
+                            shiftedHours,
+                        )} .hour-prog-bar-fill-complete`,
                     );
                     const hourProgBarLabel = d.querySelector(
-                        `#hour-${zeroPad(h)} .hour-prog-bar-label`,
+                        `#hour-${zeroPad(shiftedHours)} .hour-prog-bar-label`,
                     );
 
                     // Past - Start by assuming the hour's 100% over
-                    if (h < hours) {
+                    if (shiftedHours < hours) {
                         hourProgBarFill.style.width = '100%';
 
-                        hourProgBarLabel.innerText = zeroPad(h);
+                        hourProgBarLabel.innerText = zeroPad(shiftedHours);
                         hourProgBarLabel.style.color = 'darkgrey';
                         hourProgBarLabel.style.fontWeight = '100';
                     }
 
                     // Present - If it's the current hour, calculate the percent
                     // of the hour that's complete
-                    else if (h === hours) {
+                    else if (shiftedHours === hours) {
                         const fractionOfSec = ms / MS_IN_SECS;
                         const fractionOfMin =
                             (secs + fractionOfSec) / SECS_IN_MIN;
@@ -166,9 +169,9 @@
                         hourProgBarFill.style.width = percentHourOver + '%';
 
                         // Set the label to the current time
-                        hourProgBarLabel.innerText = `${zeroPad(h)}:${zeroPad(
-                            mins,
-                        )}:${zeroPad(secs)}.${tenthOfSec}`;
+                        hourProgBarLabel.innerText = `${zeroPad(
+                            shiftedHours,
+                        )}:${zeroPad(mins)}:${zeroPad(secs)}.${tenthOfSec}`;
                         hourProgBarLabel.style.color = 'white';
 
                         if (tenthOfSec === 0) {
@@ -179,10 +182,10 @@
                     }
 
                     // Future - If it's a future hour, it's completely full
-                    else if (h > hours) {
+                    else if (shiftedHours > hours) {
                         hourProgBarFill.style.width = '0';
 
-                        hourProgBarLabel.innerText = zeroPad(h);
+                        hourProgBarLabel.innerText = zeroPad(shiftedHours);
                         hourProgBarLabel.style.color = 'lightgrey';
                         hourProgBarLabel.style.fontWeight = '400';
                     }

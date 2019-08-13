@@ -44,7 +44,7 @@
     <body>
         <div id="clock"></div>
         <script>
-            // Config ----------------------------------------------------------
+            // Consts ----------------------------------------------------------
             const d = document;
             const w = window;
 
@@ -53,9 +53,6 @@
             const MINS_IN_HOUR = 60;
             const SECS_IN_MIN = 60;
             const MS_IN_SECS = 1000;
-
-            // How often to update the clock, in milliseconds
-            const DISPLAY_UPDATE_INTERVAL = 100;
 
             // User settings ---------------------------------------------------
 
@@ -78,6 +75,12 @@
                 rawHoursToDisplay <= HOURS_IN_DAY
                     ? rawHoursToDisplay
                     : HOURS_IN_DAY;
+
+            // Show milliseconds in clock
+            const SHOW_MS = getIntQuerySetting('ms');
+
+            // How often to update the clock, in milliseconds
+            const DISPLAY_UPDATE_INTERVAL = SHOW_MS ? 100 : 1000;
 
             // Helper functions ------------------------------------------------
 
@@ -181,13 +184,12 @@
                         // Set the label to the current time
                         hourProgBarLabel.innerText = `${zeroPad(
                             shiftedHours,
-                        )}:${zeroPad(mins)}:${zeroPad(secs)}.${tenthOfSec}`;
+                        )}:${zeroPad(mins)}:${zeroPad(secs)}`;
                         hourProgBarLabel.style.color = 'white';
+                        hourProgBarLabel.style.fontWeight = '700';
 
-                        if (tenthOfSec === 0) {
-                            hourProgBarLabel.style.fontWeight = '700';
-                        } else {
-                            hourProgBarLabel.style.fontWeight = '400';
+                        if (SHOW_MS) {
+                            hourProgBarLabel.innerText += `.${tenthOfSec}`;
                         }
                     }
 

@@ -1,12 +1,12 @@
 # 1440-clock
 
 > A minimalist clock that visualizes the 1,440 precious minutes each of us has
-> in a day https://robatron.github.io/1440-clock/ 
+> in a day
 
 ## About
 
 I wanted a simple visualization of the 1,440 precious minutes each of us has in
-a day. By default, this clock shows you a visual countdown of the minutes you
+a day. By default, these clocks show you a visual countdown of the minutes you
 have remaining before midnight.
 
 ## Usage
@@ -16,7 +16,7 @@ There are two clocks available:
 - https://robatron.github.io/1440-clock/
 - https://robatron.github.io/1440-clock/bars
 
-To configure the clock you can use the following query parameters:
+To configure these clocks you can use the following query parameters:
 
 -   `dh` - Number of hours to display
 -   `hw` - Hide words in the UI, display only the clock
@@ -37,7 +37,7 @@ Customized to show an 8-hour, 9-5 workday:
 
 ![customized](./ss-custom.png)
 
-# License
+# License (MIT)
 
 Copyright 2019 Robert McGuire
 

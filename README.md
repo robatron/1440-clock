@@ -1,6 +1,6 @@
 # 1440-clock
 
-> A minimalist clock that visualizes the 1,440 precious minutes each of us has
+> Minimalist clocks that visualize the 1,440 precious minutes each of us has
 > in a day
 
 ## About

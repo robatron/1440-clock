@@ -1,7 +1,7 @@
 # 1440-clock
 
 > A minimalist clock that visualizes the 1,440 precious minutes each of us has
-> in a day https://robatron.github.io/1440-clock/
+> in a day https://robatron.github.io/1440-clock/ 
 
 ## About
 
@@ -11,9 +11,10 @@ have remaining before midnight.
 
 ## Usage
 
-To use the clock, go here:
+There are two clocks available:
 
-https://robatron.github.io/1440-clock/
+- https://robatron.github.io/1440-clock/
+- https://robatron.github.io/1440-clock/bars
 
 To configure the clock you can use the following query parameters:
 

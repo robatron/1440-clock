@@ -23,9 +23,15 @@ To configure these clocks you can use the following query parameters:
 -   `sh` - Starting hour
 -   `sm` - Starting minute
 
-For example, this configuration shows an 8-hour workday, from 07:15 to 15:15:
+### Examples
+
+Default clock, 8-hour workday, from 07:15 to 15:15:
 
 -   https://robatron.github.io/1440-clock/?dh=8&sh=7&sm=15
+
+Bars clock, 8-hour workday, from 07:15 to 15:15:
+
+-   https://robatron.github.io/1440-clock/bars?dh=8&sh=7&sm=15
 
 ## Screenshots
 

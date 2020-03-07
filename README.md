@@ -29,9 +29,9 @@ Default clock, 8-hour workday, from 07:15 to 15:15:
 
 -   https://robatron.github.io/1440-clock/?dh=8&sh=7&sm=15
 
-Bars clock, 8-hour workday, from 07:15 to 15:15:
+Bars clock, 8-hour workday, from 06:00 to 21:00:
 
--   https://robatron.github.io/1440-clock/bars?dh=8&sh=7&sm=15
+-   https://robatron.github.io/1440-clock/bars?dh=15&sh=6
 
 ## Screenshots
 

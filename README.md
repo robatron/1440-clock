@@ -31,8 +31,8 @@ For example, this configuration shows an 8-hour workday, from 07:15 to 15:15:
 
 Default clock example:
 
-![default clock](./img/ss-default.png | width=250)
+<img src="./img/ss-default.png" width="250">
 
 "Bars" clock example:
 
-![bars clock](./img/ss-bars.png | width=250)
+<img src="./img/ss-bars.png" width="250">
